@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+    <head>
+        <title>TCG-Binder</title>
+
+        <meta charset='utf-8'>
+        <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+        <meta name='viewport' content='width=device-width, initial-scale=1'>
+      
+        <link href="https://cdn.jsdelivr.net/npm/daisyui@4.7.2/dist/full.min.css" rel="stylesheet" type="text/css" />
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link rel='stylesheet' type="text/css" href="{% static 'styles/main.css' %}">
+
+    </head>
+
+    <body>
+        {% include 'navbar.html' %}
+ 
+        {% block content %}
+
+        {% endblock content %}
+    </body>
+</html>
