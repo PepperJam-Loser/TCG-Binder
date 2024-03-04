@@ -16,11 +16,9 @@
 
     <body>
         {% include 'navbar.html' %}
+ 
+        {% block content %}
 
-        <h1>TCG-Binder</h1>
-
-            {% block content %}
-
-            {% endblock content %}
+        {% endblock content %}
     </body>
 </html>
