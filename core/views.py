@@ -7,3 +7,9 @@ def profile(request):
 
 def home(request):
     return render(request, 'pages/homepage.html')
+
+def decks(request):
+    return render(request, 'pages/decks.html')
+
+def addcard(request):
+    return render(request, 'pages/addcard.html')

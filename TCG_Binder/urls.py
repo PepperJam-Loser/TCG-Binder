@@ -22,5 +22,7 @@ urlpatterns = [
     path('', views.home, name="home"),
     path('admin/', admin.site.urls),
     path('accounts/', include('allauth.urls')),
-    path('accounts/profile/' , views.profile, name="profile" )
+    path('accounts/profile/' , views.profile, name="profile" ),
+    path('decks/', views.decks, name="decks" ),
+    path('addcard/', views.addcard, name="addcard" )
 ]
