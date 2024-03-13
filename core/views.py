@@ -1,5 +1,4 @@
 from django.shortcuts import render
-
 # Create your views here.
 
 def profile(request):
@@ -13,3 +12,6 @@ def decks(request):
 
 def addcard(request):
     return render(request, 'pages/addcard.html')
+
+def library(request):
+    return render(request, 'pages/library.html')
