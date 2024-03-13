@@ -52,5 +52,23 @@
             menu.style.display = "block";
             icon.innerHTML = '<i class="fas fa-times"></i>'; // Change icon to X
         }
+        // Drop down menu doesn't collapse unless x is clicked or user clicks anywhere on the screen
+        event.stopPropagation();
     }
+
+    // Recognize where user doesn't select drop down menu item and clicks anywhere on the screen
+    document.body.addEventListener('click', function(event) {
+        var menu1 = document.getElementById('menu1');
+        var menu2 = document.getElementById('menu2');
+        var menu1Icon = document.getElementById('menu1Icon');
+        var menu2Icon = document.getElementById('menu2Icon');
+        if (!menu1.contains(event.target)) {
+            menu1.style.display = 'none';
+            menu1Icon.innerHTML = '<i class="fas fa-bars"></i>';
+        }
+        if (!menu2.contains(event.target)) {
+            menu2.style.display = 'none';
+            menu2Icon.innerHTML = '<i class="fas fa-user-circle"></i>';
+        }
+    });
 </script>
