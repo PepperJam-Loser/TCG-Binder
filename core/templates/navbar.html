@@ -56,19 +56,23 @@
         event.stopPropagation();
     }
 
-    // Recognize where user doesn't select drop down menu item and clicks anywhere on the screen
+    // Make it so when a user clicks one menu then clicks another both menus don't collapse until click anywhere on screen
     document.body.addEventListener('click', function(event) {
         var menu1 = document.getElementById('menu1');
         var menu2 = document.getElementById('menu2');
         var menu1Icon = document.getElementById('menu1Icon');
         var menu2Icon = document.getElementById('menu2Icon');
-        if (!menu1.contains(event.target)) {
+        var clickedElement = event.target;
+        var isMenu1Icon = clickedElement.id === 'menu1Icon';
+        var isMenu2Icon = clickedElement.id === 'menu2Icon';
+        if (!isMenu1Icon && !menu1.contains(clickedElement)) {
             menu1.style.display = 'none';
             menu1Icon.innerHTML = '<i class="fas fa-bars"></i>';
         }
-        if (!menu2.contains(event.target)) {
+        if (!isMenu2Icon && !menu2.contains(clickedElement)) {
             menu2.style.display = 'none';
             menu2Icon.innerHTML = '<i class="fas fa-user-circle"></i>';
         }
     });
 </script>
+

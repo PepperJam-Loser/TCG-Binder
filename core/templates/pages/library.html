@@ -6,15 +6,16 @@
 
     {% block layout %}
         <h1>Library</h1>
-        <div class="card w-96 bg-base-100 shadow-xl">
-            <figure><img src="https://daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.jpg" alt="Shoes" /></figure>
-            <div class="card-body">
-              <h2 class="card-title">Deck</h2>
-              <p>Card details</p>
-              <div class="card-actions justify-end">
-                <button class="btn btn-primary">Buy Now</button>
+        <div class="flip-card" onclick="this.classList.toggle('clicked')">
+          <div class="flip-card-inner">
+              <div class="flip-card-front">
+                  <p class="title break-words">Some card</p>
+                  <p>Information</p>
               </div>
-            </div>
+              <div class="flip-card-back">
+                  <p>Backside of card</p>
+              </div>
           </div>
+      </div>
 
     {% endblock %}

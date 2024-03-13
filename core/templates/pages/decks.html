@@ -1,21 +1,96 @@
 <!DOCTYPE html>
+{% extends 'main.html' %}
+{% load static %}
 
-    {% extends 'main.html' %}
+{% block layout %}
+<!--Used ChatGPT to help with flipping and correctly wrap things-->
+<div class="h-screen flex flex-col items-start p-4">
+    <!-- Add a Deck -->
+    <div class="card w-12 bg-base-100 border border-base-300 mb-2 mr-2">
+        <div class="flex justify-center items-center">
+            <button onclick="loadCard()" class="text-white font-bold py-2 px-2 rounded focus:outline-none">
+                <i class="fas fa-plus text-gray-600 text-2xl"></i>
+            </button>
+        </div>
+    </div>
 
-    {% load static %}
+    <!-- Delete a Deck -->
+    <div class="card w-12 bg-base-100 border border-base-300 mb-2 mr-2">
+        <div class="flex justify-center items-center">
+            <button onclick="deleteCard()" class="text-white font-bold py-2 px-2 rounded focus:outline-none">
+                <i class="fas fa-trash-alt text-gray-600 text-2xl"></i>
+            </button>
+        </div>
+    </div>
 
-    {% block layout %}
-        <h1>Create Custom Decks</h1>
-        <div class="card w-96 bg-base-100 shadow-xl">
-            <figure><img src="https://daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.jpg" alt="Shoes" /></figure>
-            <div class="card-body">
-              <h2 class="card-title">Deck</h2>
-              <p>Card details</p>
-              <div class="card-actions justify-end">
-                <button class="btn btn-primary">Buy Now</button>
-              </div>
-            </div>
-          </div>
+    <!-- Card container -->
+    <div id="cardContainer" class="flex flex-wrap w-full overflow-y-auto">
+      <!-- Cards that are added go right next to this one, keeping in mind there is a wrap -->
+    </div>
+</div>
 
-    {% endblock %}
+<script>
+    var cardIndex = 0;
 
+    function loadCard() {
+        var cardContainer = document.getElementById('cardContainer');
+        cardContainer.classList.remove('hidden');
+        var card = createCard();
+        cardContainer.appendChild(card);
+    }
+
+    function createCard() {
+        var flipCard = document.createElement('div');
+        flipCard.classList.add('flip-card');
+        flipCard.style.width = '300px';
+        flipCard.style.height = '400px';
+        flipCard.style.fontFamily = 'sans-serif';
+        flipCard.style.borderRadius = '1rem';
+        flipCard.style.overflowY = 'scroll';
+        flipCard.style.border = '1px solid transparent';
+        
+        flipCard.setAttribute('onclick', "this.classList.toggle('clicked')");
+        
+        var flipCardInner = document.createElement('div');
+        flipCardInner.classList.add('flip-card-inner');
+        
+        var flipCardFront = document.createElement('div');
+        flipCardFront.classList.add('flip-card-front');
+        flipCardFront.style.backgroundImage = "url('https://www.hipstersofthecoast.com/wp-content/uploads/2023/06/en_8e6a0736e8.png')";
+        flipCardFront.style.backgroundSize = 'contain';
+        flipCardFront.style.backgroundPosition = 'center';
+        flipCardFront.style.height = '100%';
+        
+        var flipCardBack = document.createElement('div');
+        flipCardBack.classList.add('flip-card-back');
+        flipCardBack.style.backgroundImage = "url('https://www.hipstersofthecoast.com/wp-content/uploads/2023/06/en_8e6a0736e8.png')";
+        flipCardBack.style.backgroundSize = 'contain';
+        flipCardBack.style.backgroundPosition = 'center';
+        flipCardBack.style.height = '100%';
+        flipCardBack.style.opacity = '0.5';
+        
+        var backContent = document.createElement('div');
+        backContent.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+        var backText = document.createElement('p');
+        backText.classList.add('text-white');
+        backText.textContent = 'Card Details:';
+        backContent.appendChild(backText);
+        flipCardBack.appendChild(backContent);
+        
+        flipCardInner.appendChild(flipCardFront);
+        flipCardInner.appendChild(flipCardBack);
+        flipCard.appendChild(flipCardInner);
+        
+        cardIndex++;
+        return flipCard;
+    }
+
+    function deleteCard() {
+        var cardContainer = document.getElementById('cardContainer');
+        var lastCard = cardContainer.lastElementChild;
+        if (lastCard) {
+            cardContainer.removeChild(lastCard);
+        }
+    }
+</script>
+{% endblock %}
