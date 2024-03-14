@@ -152,5 +152,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 SOCIALACCOUNT_PROVIDERS = {}
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-ACCOUNT_AUTHENTICATION_METHOD = 'email'
-ACCOUNT_EMAIL_REQUIRED = True
+
+# Accept either username or password when logging in
+# As answered by Yogesh https://stackoverflow.com/questions/26036983/accept-username-or-email-for-logging-in-with-django-allauth 
+ACCOUNT_AUTHENTICATION_METHOD= 'username_email' 
+ACCOUNT_EMAIL_REQUIRED = True 
+ACCOUNT_UNIQUE_EMAIL = True 
+ACCOUNT_USERNAME_REQUIRED = True

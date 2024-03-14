@@ -31,7 +31,7 @@ var cardIndex = 0;
         
         var flipCardBack = document.createElement('div');
         flipCardBack.classList.add('flip-card-back');
-        flipCardBack.style.backgroundImage = "url('https://www.hipstersofthecoast.com/wp-content/uploads/2023/06/en_8e6a0736e8.png')";
+        flipCardBack.style.backgroundImage = "url('https://i.imgur.com/LdOBU1I.jpeg')";
         flipCardBack.style.backgroundSize = 'contain';
         flipCardBack.style.backgroundPosition = 'center';
         flipCardBack.style.height = '100%';
