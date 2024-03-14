@@ -15,3 +15,4 @@ def addcard(request):
 
 def library(request):
     return render(request, 'pages/library.html')
+
