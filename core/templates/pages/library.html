@@ -1,23 +1,191 @@
 <!DOCTYPE html>
+{% extends 'main.html' %}
+{% load static %}
+{% block layout %}
+<!--Used ChatGPT to utilize the search feature to get entire library alphabetically but this is extremely gimmicky and very slow-->
+<div class="h-screen flex flex-col items-start p-4">
+    <!-- Card container -->
+    <div id="cardContainer" class="flex flex-wrap w-full overflow-y-auto">
+        <!-- Cards will be dynamically added here -->
+    </div>
+    
+    <!-- Pagination buttons -->
+    <div class="flex justify-between w-full mt-4">
+        <button onclick="loadPreviousPage()" class="px-4 py-2 bg-gray-500 text-white rounded">Previous Page</button>
+        <button onclick="loadNextPage()" class="px-4 py-2 bg-blue-500 text-white rounded">Next Page</button>
+    </div>
+</div>
 
-    {% extends 'main.html' %}
+<style>
+    .flip-card-back {
+        background-image: url('https://i.imgur.com/LdOBU1I.jpeg');
+        background-size: contain; /* Adjusted background size */
+        background-position: center; /* Centers the background image */
+        height: 100%; /* Ensure the back of the card fills the entire element */
+        opacity: 0.5; /* Adjust opacity */
+    }
+</style>
 
-    {% load static %}
+<script type="text/javascript">
+    var currentPage = 1;
+    var cardsPerPage = 60;
+    var totalCards = 0;
+    var fetchedCards = {}; // Store fetched cards for each page
 
-    {% block layout %}
-        <h1>Library</h1>
-        <div class="h-screen flex">
-            <div class="flip-card" onclick="this.classList.toggle('clicked')">
-                <div class="flip-card-inner">
-                    <div class="flip-card-front" style="background-image: url('https://www.hipstersofthecoast.com/wp-content/uploads/2023/06/en_8e6a0736e8.png'); background-size: contain; background-position: center; height: 100%;">
-                    </div>
-                    <div class="flip-card-back" style="background-image: url('https://i.imgur.com/LdOBU1I.jpeg'); background-size: contain; background-position: center; height: 100%; opacity: 0.5;">
-                        <div style="background-color: rgba(0, 0, 0, 0.5);">
-                            <p class="text-white">Card Details:</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+    // Function to fetch and display cards based on the current page
+    function fetchAndDisplayCards(page) {
+        // Fetch cards for the current page using the search query
+        var apiUrl = "https://api.scryfall.com/cards/search?as=grid&order=name&q=%28game%3Apaper%29+unique%3Aprints&page=" + page;
 
-    {% endblock %}
+        // Make a GET request to the Scryfall API
+        fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+                // Store fetched cards for current page
+                fetchedCards[page] = data.data;
+
+                // Extract total number of cards if not done already
+                if (totalCards === 0) {
+                    totalCards = data.total_cards;
+                }
+
+                // Clear the existing cards from the container
+                document.getElementById("cardContainer").innerHTML = "";
+
+                // Iterate over the cards for the current page
+                for (var i = 0; i < data.data.length; i++) {
+                    // Extract card details
+                    var card = data.data[i];
+                    var cardImageUrl = card.image_uris.normal;
+                    var cardName = card.name;
+                    var cardSet = card.set_name;
+                    var cardRarity = card.rarity;
+                    var cardNumber = card.collector_number || "N/A"; // If card number is not available, display "N/A"
+
+                    // Create card element
+                    var cardElement = document.createElement("div");
+                    cardElement.className = "flip-card";
+                    cardElement.onclick = function() { this.classList.toggle('clicked') };
+
+                    var cardInnerElement = document.createElement("div");
+                    cardInnerElement.className = "flip-card-inner";
+
+                    var cardFrontElement = document.createElement("div");
+                    cardFrontElement.className = "flip-card-front";
+
+                    var cardImageElement = document.createElement("img");
+                    cardImageElement.src = cardImageUrl;
+                    cardImageElement.alt = "Card Image";
+
+                    cardFrontElement.appendChild(cardImageElement);
+
+                    var cardBackElement = document.createElement("div");
+                    cardBackElement.className = "flip-card-back";
+
+                    var cardDetailsElement = document.createElement("div");
+                    cardDetailsElement.style.backgroundColor = "rgba(161, 152, 152, 0.5)";
+
+                    var cardDetailsTextElement = document.createElement("p");
+                    cardDetailsTextElement.className = "text-white";
+                    cardDetailsTextElement.innerText = "Name: " + cardName + "\nSet: " + cardSet + "\nRarity: " + cardRarity + "\nNumber: " + cardNumber;
+
+                    cardDetailsElement.appendChild(cardDetailsTextElement);
+                    cardBackElement.appendChild(cardDetailsElement);
+
+                    cardInnerElement.appendChild(cardFrontElement);
+                    cardInnerElement.appendChild(cardBackElement);
+
+                    cardElement.appendChild(cardInnerElement);
+
+                    // Append card element to the container
+                    document.getElementById("cardContainer").appendChild(cardElement);
+                }
+            })
+            .catch(error => console.error('Error fetching card data:', error));
+    }
+
+    // Function to load the previous page
+    function loadPreviousPage() {
+        if (currentPage > 1) {
+            currentPage--;
+            if (!fetchedCards[currentPage]) {
+                fetchAndDisplayCards(currentPage);
+            } else {
+                displayFetchedCards(currentPage);
+            }
+        }
+    }
+
+    // Function to load the next page
+    function loadNextPage() {
+        if ((currentPage * cardsPerPage) < totalCards) {
+            currentPage++;
+            if (!fetchedCards[currentPage]) {
+                fetchAndDisplayCards(currentPage);
+            } else {
+                displayFetchedCards(currentPage);
+            }
+        }
+    }
+
+    // Function to display fetched cards for a specific page
+    function displayFetchedCards(page) {
+        // Clear the existing cards from the container
+        document.getElementById("cardContainer").innerHTML = "";
+
+        // Retrieve fetched cards for the specified page
+        var cards = fetchedCards[page];
+
+        // Iterate over the fetched cards and display them
+        for (var i = 0; i < cards.length; i++) {
+            var card = cards[i];
+            var cardImageUrl = card.image_uris.normal;
+            var cardName = card.name;
+            var cardSet = card.set_name;
+            var cardRarity = card.rarity;
+            var cardNumber = card.collector_number || "N/A";
+
+            // Create card element
+            var cardElement = document.createElement("div");
+            cardElement.className = "flip-card";
+            cardElement.onclick = function() { this.classList.toggle('clicked') };
+
+            var cardInnerElement = document.createElement("div");
+            cardInnerElement.className = "flip-card-inner";
+
+            var cardFrontElement = document.createElement("div");
+            cardFrontElement.className = "flip-card-front";
+
+            var cardImageElement = document.createElement("img");
+            cardImageElement.src = cardImageUrl;
+            cardImageElement.alt = "Card Image";
+
+            cardFrontElement.appendChild(cardImageElement);
+
+            var cardBackElement = document.createElement("div");
+            cardBackElement.className = "flip-card-back";
+
+            var cardDetailsElement = document.createElement("div");
+            cardDetailsElement.style.backgroundColor = "rgba(161, 152, 152, 0.5)";
+
+            var cardDetailsTextElement = document.createElement("p");
+            cardDetailsTextElement.className = "text-white";
+            cardDetailsTextElement.innerText = "Name: " + cardName + "\nSet: " + cardSet + "\nRarity: " + cardRarity + "\nNumber: " + cardNumber;
+
+            cardDetailsElement.appendChild(cardDetailsTextElement);
+            cardBackElement.appendChild(cardDetailsElement);
+
+            cardInnerElement.appendChild(cardFrontElement);
+            cardInnerElement.appendChild(cardBackElement);
+
+            cardElement.appendChild(cardInnerElement);
+
+            // Append card element to the container
+            document.getElementById("cardContainer").appendChild(cardElement);
+        }
+    }
+
+    // Call the fetchAndDisplayCards function when the page loads
+    window.onload = fetchAndDisplayCards(currentPage);
+</script>
+{% endblock %}

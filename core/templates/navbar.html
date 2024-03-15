@@ -11,8 +11,9 @@
             </div>
             <ul id="menu1" tabindex="0" class="absolute left-0 mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content rounded bg-base-100 w-48" style="display: none;">
                 <li><a href="{% url 'library' %}" class="justify-between">Library</a></li>
-                <li><a href="{% url 'addcard' %}" class="justify-between">Add Card to DB</a></li>
+                <li><a href="{% url 'addcard' %}" class="justify-between">Add Card to Your DB</a></li>
                 <li><a href="{% url 'decks' %}" class="justify-between">Decks</a></li>
+                <li><a href="{% url 'randomcardgen' %}" class="justify-between">Random Card Generator</a></li>
             </ul>
         </div>
     </div>
@@ -23,6 +24,9 @@
 
     <div class="flex-none gap-2">
         {% if user.is_authenticated %}
+            <div class="absolute right-24 flex items-center">
+                <span>Hello, {{ request.user.username }}</span>
+            </div>
             <div class="absolute right-0 dropdown dropdown-end">
                 <div tabindex="0" class="flex-1">
                     <a id="menu2Icon" class="btn btn-ghost text-xl" onclick="toggleDropdown('menu2', 'menu2Icon', 'fa-user-circle')">
@@ -43,4 +47,3 @@
 </div>
 
 <script src="{% static 'js/navbar.js' %}"></script>
-

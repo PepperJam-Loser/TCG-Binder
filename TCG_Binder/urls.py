@@ -25,5 +25,6 @@ urlpatterns = [
     path('accounts/profile/' , views.profile, name="profile"),
     path('decks/', views.decks, name="decks" ),
     path('addcard/', views.addcard, name="addcard"),
-    path('library/', views.library, name="library")
+    path('library/', views.library, name="library"),
+    path('randomcardgen/', views.randomcardgen, name="randomcardgen")
 ]

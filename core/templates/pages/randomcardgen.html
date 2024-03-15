@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+{% extends 'main.html' %}
+{% load static %}
+{% block layout %}
+<div class="h-screen flex items-center justify-center">
+    <div class="flip-card" onclick="this.classList.toggle('clicked')">
+        <div class="flip-card-inner">
+            <div class="flip-card-front">
+                <img id="card-image" src="{% static 'placeholder-image.jpg' %}" style="width: 100%; height: 100%;" alt="Card Image">
+            </div>
+            <div class="flip-card-back" style="background-image: url('https://i.imgur.com/LdOBU1I.jpeg'); background-size: contain; background-position: center; height: 100%; opacity: 0.5;">
+                <div style="background-color: rgba(161, 152, 152, 0.5);">
+                    <p class="text-white">Card Details:</p>
+                    <p class="text-white" id="card-details"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    // Used ChatGPT to help fetch random card data using the Scryfall search query
+    function fetchAndUpdateCard() {
+        // Fetch a random card using the search query
+        var apiUrl = "https://api.scryfall.com/cards/random?q=is%3Afull+is%3Amedium";
+
+        // Make a GET request to the Scryfall API
+        fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+                // Extract these fields
+                var cardImageUrl = data.image_uris.normal;
+                var cardName = data.name;
+                var cardSet = data.set_name;
+                var cardRarity = data.rarity;
+                var cardNumber = data.collector_number || "N/A"; // If card number is not available, display "N/A"
+
+                // Update the image source and card details
+                document.getElementById("card-image").src = cardImageUrl;
+                document.getElementById("card-details").innerText = "Name: " + cardName + "\nSet: " + cardSet + "\nRarity: " + cardRarity + "\nNumber: " + cardNumber;
+            })
+            .catch(error => console.error('Error fetching card data:', error));
+    }
+
+    // Call the fetchAndUpdateCard function when the page loads
+    window.onload = fetchAndUpdateCard;
+</script>
+{% endblock %}

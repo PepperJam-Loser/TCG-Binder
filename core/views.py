@@ -16,3 +16,5 @@ def addcard(request):
 def library(request):
     return render(request, 'pages/library.html')
 
+def randomcardgen(request):
+    return render(request, 'pages/randomcardgen.html')
