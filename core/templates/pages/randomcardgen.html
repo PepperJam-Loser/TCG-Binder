@@ -20,22 +20,21 @@
 
 
 <script type="text/javascript">
-    // Function to fetch and update card data
+    // Used ChatGPT to help fetch random card data using the Scryfall search query
     function fetchAndUpdateCard() {
-        // Fetch card data using the Scryfall API
-        var apiUrl = "https://api.scryfall.com/cards/search?as=grid&page=1&q=(game%3Apaper)+unique%3Aprints&unique=cards";
+        // Fetch a random card using the search query
+        var apiUrl = "https://api.scryfall.com/cards/random?q=is%3Afull+is%3Amedium";
 
         // Make a GET request to the Scryfall API
         fetch(apiUrl)
             .then(response => response.json())
             .then(data => {
-                // Extract data for the first card
-                var card = data.data[0];
-                var cardImageUrl = card.image_uris.normal;
-                var cardName = card.name;
-                var cardSet = card.set_name;
-                var cardRarity = card.rarity;
-                var cardNumber = card.collector_number || "N/A";
+                // Extract these fields
+                var cardImageUrl = data.image_uris.normal;
+                var cardName = data.name;
+                var cardSet = data.set_name;
+                var cardRarity = data.rarity;
+                var cardNumber = data.collector_number || "N/A"; // If card number is not available, display "N/A"
 
                 // Update the image source and card details
                 document.getElementById("card-image").src = cardImageUrl;
@@ -46,10 +45,5 @@
 
     // Call the fetchAndUpdateCard function when the page loads
     window.onload = fetchAndUpdateCard;
-
-    // Toggle "clicked" class on card flip
-    document.querySelector('.flip-card').addEventListener('click', function() {
-        this.classList.toggle('clicked');
-    });
 </script>
 {% endblock %}
