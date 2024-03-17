@@ -139,7 +139,6 @@
 
         async function fetchJSONFromAPI(page) {
             const apiUrl = `https://api.scryfall.com/cards/search?format=json&include_extras=false&include_multilingual=false&include_variations=false&order=name&page=${page}&q=%28game%3Apaper%29+unique%3Aprints&unique=prints`;
-            
             try {
                 const response = await fetch(apiUrl);
                 const jsonData = await response.json();
@@ -156,26 +155,7 @@
                 const outputDiv = document.getElementById('output');
                 outputDiv.innerHTML = ''; // Clear previous cards
 
-                const cardImages = [];
-
-                /* This is to handle the multifaced cards */
                 jsonData.data.forEach((card, index) => {
-                    const cardFaces = card.card_faces;
-                    if (cardFaces && cardFaces.length > 1) {
-                        const frontSide = cardFaces[0];
-                        const backSide = cardFaces[1];
-                        const frontImage = frontSide.image_uris.normal;
-                        const backImage = backSide.image_uris.normal;
-                        cardImages.push({ frontName: frontSide.name, frontSetName: frontSide.set_name, frontRarity: frontSide.rarity, frontArtist: frontSide.artist, frontImage: frontImage, backName: backSide.name, backSetName: backSide.set_name, backRarity: backSide.rarity, backArtist: backSide.artist, backImage: backImage });
-                    } else {
-                        const normalImage = card.image_uris.normal;
-                        const backImage = 'https://i.imgur.com/LdOBU1I.jpeg';
-                        cardImages.push({ frontName: card.name, frontSetName: card.set_name, frontRarity: card.rarity, frontArtist: card.artist, frontImage: normalImage, backName: card.name, backSetName: card.set_name, backRarity: card.rarity, backArtist: card.artist, backImage: backImage });
-                    }
-                });
-                
-                /* Card Details */
-                cardImages.forEach((card, index) => {
                     const cardContainer = document.createElement('div');
                     cardContainer.classList.add('flip-card');
 
@@ -186,8 +166,8 @@
                     frontSide.classList.add('flip-card-front');
 
                     const frontImage = document.createElement('img');
-                    frontImage.src = card.frontImage;
-                    frontImage.alt = card.frontName;
+                    frontImage.src = findFrontImage(card);
+                    frontImage.alt = card.name || 'Unknown Name';
 
                     frontSide.appendChild(frontImage);
                     cardInner.appendChild(frontSide);
@@ -196,18 +176,15 @@
                     backSide.classList.add('flip-card-back');
 
                     const backImage = document.createElement('img');
-                    backImage.src = card.backImage;
-                    backImage.alt = card.backName;
+                    backImage.src = findBackImage(card);
+                    backImage.alt = card.name || 'Unknown Name';
 
                     backSide.appendChild(backImage);
                     cardInner.appendChild(backSide);
 
-                    // Add card details for both front and back sides
-                    const frontCardDetails = createCardDetails(card.frontName, card.frontSetName, card.frontRarity, card.frontArtist);
-                    frontSide.appendChild(frontCardDetails);
-
-                    const backCardDetails = createCardDetails(card.backName, card.backSetName, card.backRarity, card.backArtist);
-                    backSide.appendChild(backCardDetails);
+                    const cardDetails = createCardDetails(card.name, card.set_name, card.rarity, card.artist);
+                    frontSide.appendChild(cardDetails.cloneNode(true));
+                    backSide.appendChild(cardDetails);
 
                     cardContainer.appendChild(cardInner);
                     outputDiv.appendChild(cardContainer);
@@ -222,29 +199,49 @@
             }
         }
 
+        //card_faces fields and index is very important
+        function findFrontImage(card) {
+            if (card.card_faces && card.card_faces[0] && card.card_faces[0].image_uris) {
+                return card.card_faces[0].image_uris.normal || 'https://i.imgur.com/LdOBU1I.jpeg';
+            } else if (card.image_uris) {
+                return card.image_uris.normal || 'https://i.imgur.com/LdOBU1I.jpeg';
+            } else {
+                return 'https://i.imgur.com/LdOBU1I.jpeg';
+            }
+        }
+        
+        //Have a default back card image
+        function findBackImage(card) {
+            if (card.card_faces && card.card_faces[1] && card.card_faces[1].image_uris) {
+                return card.card_faces[1].image_uris.normal || 'https://i.imgur.com/LdOBU1I.jpeg';
+            } else {
+                return 'https://i.imgur.com/LdOBU1I.jpeg';
+            }
+        }
+
         function createCardDetails(name, setName, rarity, artist) {
             const cardDetailsContainer = document.createElement('div');
             cardDetailsContainer.classList.add('flip-card-details');
 
-            const nameLabel = document.createElement('span'); // Change to span for inline display
-            nameLabel.textContent = 'Name: '; // Add label for Name field
-            nameLabel.style.fontWeight = 'bold'; // Make label bold
+            const nameLabel = document.createElement('span');
+            nameLabel.textContent = 'Name: ';
+            nameLabel.style.fontWeight = 'bold';
             cardDetailsContainer.appendChild(nameLabel);
 
-            const nameText = document.createElement('span'); // Change to span for inline display
-            nameText.textContent = name;
+            const nameText = document.createElement('span');
+            nameText.textContent = name || 'Unknown Name';
             cardDetailsContainer.appendChild(nameText);
 
             const setNameText = document.createElement('p');
-            setNameText.textContent = `Set: ${setName}`;
+            setNameText.textContent = `Set: ${setName || 'Unknown Set'}`;
             cardDetailsContainer.appendChild(setNameText);
 
             const rarityText = document.createElement('p');
-            rarityText.textContent = `Rarity: ${rarity}`;
+            rarityText.textContent = `Rarity: ${rarity || 'Unknown Rarity'}`;
             cardDetailsContainer.appendChild(rarityText);
 
             const artistText = document.createElement('p');
-            artistText.textContent = `Artist: ${artist}`;
+            artistText.textContent = `Artist: ${artist || 'Unknown Artist'}`;
             cardDetailsContainer.appendChild(artistText);
 
             return cardDetailsContainer;
