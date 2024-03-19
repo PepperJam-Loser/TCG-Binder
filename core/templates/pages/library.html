@@ -1,4 +1,7 @@
-<!-- Had a real difficult time trying to make sense of fields for cards and used ChatGPT to help with getting all cards (including double sided)-->
+<!--Will use this late for search...
+    This is a valid api search for a name: https://api.scryfall.com/cards/search?order=name&q=name:giant&unique=cards&format=json
+    https://api.scryfall.com/cards/search?order=name&q=name:%{Create a name variable}&unique=cards&format=json-->
+
 <!DOCTYPE html>
 {% extends 'main.html' %}
 {% load static %}
@@ -123,6 +126,13 @@
             border-radius: 4px;
             cursor: pointer;
         }
+
+        .page-info {
+            margin-left: 10px;
+            padding: 8px 16px;
+            top: 80px;
+            font-size: 16px;
+        }
     </style>
 
     <div class="flex flex-col px-40">
@@ -130,6 +140,7 @@
     </div>
 
     <div class="pagination">
+        <div class="page-info" id="pageInfo"></div>
         <button id="prevBtn">Back</button>
         <button id="nextBtn">Next</button>
     </div>
@@ -196,6 +207,9 @@
                         this.classList.toggle('clicked');
                     });
                 });
+
+                // Update page info
+                updatePageInfo(page, jsonData.data.length);
             }
         }
 
@@ -245,6 +259,13 @@
             cardDetailsContainer.appendChild(artistText);
 
             return cardDetailsContainer;
+        }
+
+        function updatePageInfo(page, cardCount) {
+            const pageInfo = document.getElementById('pageInfo');
+            const startIndex = (page - 1) * 175 + 1;
+            const endIndex = startIndex + cardCount - 1;
+            pageInfo.textContent = `Cards: ${startIndex} - ${endIndex}`;
         }
 
         async function goToNextPage() {
