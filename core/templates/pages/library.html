@@ -6,6 +6,7 @@
 {% extends 'main.html' %}
 {% load static %}
 {% block layout %}
+    <!--Move this style. This style is for the card object-->
     <style>
         .flip-card {
             width: 200px;
@@ -144,7 +145,7 @@
         <button id="prevBtn">Back</button>
         <button id="nextBtn">Next</button>
     </div>
-
+    <!--Move this script. This just loads a pages with cards from fetching with api search-->
     <script>
         let pageNumber = 1; // Initial page number
 
