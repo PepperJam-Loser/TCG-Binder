@@ -1,16 +1,18 @@
-{% extends 'main.html' %}
+<!DOCTYPE html>
 
-{% load static %}
+  {% extends 'main.html' %}
 
-{% block content %}
+  {% load static %}
 
-<div class="hero min-h-screen bg-base-200">
-  <div class="hero-content text-center">
-    <div class="max-w-md">
-      <h1 class="text-5xl font-bold">TCG Binder</h1>
-      <p class="py-6">Welcome to TCG Binder, your ultimate digital companion for managing your trading card game collection with ease and precision. Whether you're a seasoned collector, a competitive player, or just starting out in the world of trading card games, TCG Binder offers the tools and features you need to organize, track, and showcase your collection like never before.</p>
+  {% block layout %}
+
+  <div class="hero min-h-screen bg-base-200">
+    <div class="hero-content text-center">
+      <div class="max-w-md">
+        <h1 class="text-5xl font-bold">TCG Binder</h1>
+        <p class="py-6">Welcome to TCG Binder, your ultimate digital companion for managing your trading card game collection with ease and precision. Whether you're a seasoned collector, a competitive player, or just starting out in the world of trading card games, TCG Binder offers the tools and features you need to organize, track, and showcase your collection like never before.</p>
+      </div>
     </div>
   </div>
-</div>
 
-{% endblock content %}
+  {% endblock layout %}

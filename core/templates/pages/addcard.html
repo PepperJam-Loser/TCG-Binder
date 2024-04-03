@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+
+{% extends 'main.html' %}
+
+{% load static %}
+
+{% block layout %}
+<div class="h-screen flex items-center justify-center">
+    <div class="flip-card" onclick="this.classList.toggle('clicked')">
+        <div class="flip-card-inner">
+            <div class="flip-card-front" style="background-image: url('https://www.hipstersofthecoast.com/wp-content/uploads/2023/06/en_8e6a0736e8.png'); background-size: contain; background-position: center; height: 100%;">
+            </div>
+            <div class="flip-card-back" style="background-image: url('https://i.imgur.com/LdOBU1I.jpeg'); background-size: contain; background-position: center; height: 100%; opacity: 0.5;">
+                <div style="background-color: rgba(0, 0, 0, 0.5);">
+                    <p class="text-white">Card Details:</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

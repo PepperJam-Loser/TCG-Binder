@@ -1,0 +1,291 @@
+<!--Will use this late for search...
+    This is a valid api search for a name: https://api.scryfall.com/cards/search?order=name&q=name:giant&unique=cards&format=json
+    https://api.scryfall.com/cards/search?order=name&q=name:%{Create a name variable}&unique=cards&format=json-->
+
+<!DOCTYPE html>
+{% extends 'main.html' %}
+{% load static %}
+{% block layout %}
+    <!--Move this style. This style is for the card object-->
+    <style>
+        .flip-card {
+            width: 200px;
+            height: 300px;
+            font-family: sans-serif;
+            border-radius: 1rem;
+            overflow-y: scroll;
+            border: 1px solid transparent;
+            margin: 20px;
+            display: inline-block;
+            position: relative; 
+        }
+
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.8s;
+            transform-style: preserve-3d;
+            background-color: grey;
+        }
+
+        .flip-card.clicked .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .flip-card-front, .flip-card-back {
+            box-shadow: 0 8px 14px 0 rgba(0, 0, 0, 0.2);
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border: 1px solid rgb(0, 0, 0);
+            border-radius: 1rem;
+        }
+
+        .flip-card-front {
+            color: rgb(0, 0, 0);
+        }
+
+        .flip-card-back {
+        color: rgb(0, 0, 0);
+        transform: rotateY(180deg);
+        background-size: cover; 
+        background-position: center; 
+        overflow: hidden; /* Ensure text doesn't overflow */
+        opacity: 0; /* Initially hide card details */
+        transition: opacity 0.3s; /* Add transition effect */
+        }
+
+
+        .flip-card.clicked .flip-card-front {
+            visibility: hidden;
+        }
+
+        .flip-card.clicked .flip-card-back {
+            visibility: visible;
+            opacity: 1; /* Show back card image when flipped */
+        }
+
+        .flip-card:hover .flip-card-back {
+            opacity: 1; /* Always show back card image on hover */
+        }
+
+        .flip-card:hover .flip-card-details {
+            opacity: 1; /* Show card details on hover */
+        }
+
+        .flip-card:hover {
+            outline: 2px solid white;
+        }
+
+        .flip-card img {
+            display: block;
+            border-radius: 10px;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .flip-card-details {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: left; 
+            opacity: 0; /* Initially hide card details */
+            z-index: 1;
+            color: white; /* Text color */
+            width: 90%; 
+            padding: 10px; 
+            background-color: rgba(0, 0, 0, 0.723); /*This is to outline text */
+            border-radius: 10px; 
+            backdrop-filter: blur(5px); /* Blur */
+            transition: opacity 0.3s; 
+        }
+
+        .flip-card-details p {
+            margin: 5px 0; /* Add margin for spacing */
+        }
+
+        .pagination {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+        }
+
+        .pagination button {
+            margin-left: 10px;
+            padding: 8px 16px;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .page-info {
+            margin-left: 10px;
+            padding: 8px 16px;
+            top: 80px;
+            font-size: 16px;
+        }
+    </style>
+
+    <div class="flex flex-col px-40">
+        <div id="output"></div>
+    </div>
+
+    <div class="pagination">
+        <div class="page-info" id="pageInfo"></div>
+        <button id="prevBtn">Back</button>
+        <button id="nextBtn">Next</button>
+    </div>
+    <!--Move this script. This just loads a pages with cards from fetching with api search-->
+    <script>
+        let pageNumber = 1; // Initial page number
+
+        async function fetchJSONFromAPI(page) {
+            const apiUrl = `https://api.scryfall.com/cards/search?format=json&include_extras=false&include_multilingual=false&include_variations=false&order=name&page=${page}&q=%28game%3Apaper%29+unique%3Aprints&unique=prints`;
+            try {
+                const response = await fetch(apiUrl);
+                const jsonData = await response.json();
+                return jsonData;
+            } catch (error) {
+                console.error('Error fetching JSON data:', error);
+                return null;
+            }
+        }
+
+        async function processCardData(page) {
+            const jsonData = await fetchJSONFromAPI(page);
+            if (jsonData) {
+                const outputDiv = document.getElementById('output');
+                outputDiv.innerHTML = ''; // Clear previous cards
+
+                jsonData.data.forEach((card, index) => {
+                    const cardContainer = document.createElement('div');
+                    cardContainer.classList.add('flip-card');
+
+                    const cardInner = document.createElement('div');
+                    cardInner.classList.add('flip-card-inner');
+
+                    const frontSide = document.createElement('div');
+                    frontSide.classList.add('flip-card-front');
+
+                    const frontImage = document.createElement('img');
+                    frontImage.src = findFrontImage(card);
+                    frontImage.alt = card.name || 'Unknown Name';
+
+                    frontSide.appendChild(frontImage);
+                    cardInner.appendChild(frontSide);
+
+                    const backSide = document.createElement('div');
+                    backSide.classList.add('flip-card-back');
+
+                    const backImage = document.createElement('img');
+                    backImage.src = findBackImage(card);
+                    backImage.alt = card.name || 'Unknown Name';
+
+                    backSide.appendChild(backImage);
+                    cardInner.appendChild(backSide);
+
+                    const cardDetails = createCardDetails(card.name, card.set_name, card.rarity, card.artist);
+                    frontSide.appendChild(cardDetails.cloneNode(true));
+                    backSide.appendChild(cardDetails);
+
+                    cardContainer.appendChild(cardInner);
+                    outputDiv.appendChild(cardContainer);
+                });
+
+                // Toggle "clicked" class on card flip
+                outputDiv.querySelectorAll('.flip-card').forEach(card => {
+                    card.addEventListener('click', function() {
+                        this.classList.toggle('clicked');
+                    });
+                });
+
+                // Update page info
+                updatePageInfo(page, jsonData.data.length);
+            }
+        }
+
+        //card_faces fields and index is very important
+        function findFrontImage(card) {
+            if (card.card_faces && card.card_faces[0] && card.card_faces[0].image_uris) {
+                return card.card_faces[0].image_uris.normal || 'https://i.imgur.com/LdOBU1I.jpeg';
+            } else if (card.image_uris) {
+                return card.image_uris.normal || 'https://i.imgur.com/LdOBU1I.jpeg';
+            } else {
+                return 'https://i.imgur.com/LdOBU1I.jpeg';
+            }
+        }
+        
+        //Have a default back card image
+        function findBackImage(card) {
+            if (card.card_faces && card.card_faces[1] && card.card_faces[1].image_uris) {
+                return card.card_faces[1].image_uris.normal || 'https://i.imgur.com/LdOBU1I.jpeg';
+            } else {
+                return 'https://i.imgur.com/LdOBU1I.jpeg';
+            }
+        }
+
+        function createCardDetails(name, setName, rarity, artist) {
+            const cardDetailsContainer = document.createElement('div');
+            cardDetailsContainer.classList.add('flip-card-details');
+
+            const nameLabel = document.createElement('span');
+            nameLabel.textContent = 'Name: ';
+            nameLabel.style.fontWeight = 'bold';
+            cardDetailsContainer.appendChild(nameLabel);
+
+            const nameText = document.createElement('span');
+            nameText.textContent = name || 'Unknown Name';
+            cardDetailsContainer.appendChild(nameText);
+
+            const setNameText = document.createElement('p');
+            setNameText.textContent = `Set: ${setName || 'Unknown Set'}`;
+            cardDetailsContainer.appendChild(setNameText);
+
+            const rarityText = document.createElement('p');
+            rarityText.textContent = `Rarity: ${rarity || 'Unknown Rarity'}`;
+            cardDetailsContainer.appendChild(rarityText);
+
+            const artistText = document.createElement('p');
+            artistText.textContent = `Artist: ${artist || 'Unknown Artist'}`;
+            cardDetailsContainer.appendChild(artistText);
+
+            return cardDetailsContainer;
+        }
+
+        function updatePageInfo(page, cardCount) {
+            const pageInfo = document.getElementById('pageInfo');
+            const startIndex = (page - 1) * 175 + 1;
+            const endIndex = startIndex + cardCount - 1;
+            pageInfo.textContent = `Cards: ${startIndex} - ${endIndex}`;
+        }
+
+        async function goToNextPage() {
+            pageNumber++;
+            await processCardData(pageNumber);
+        }
+
+        async function goToPrevPage() {
+            if (pageNumber > 1) {
+                pageNumber--;
+                await processCardData(pageNumber);
+            }
+        }
+
+        // Load next or previous page
+        document.getElementById('nextBtn').addEventListener('click', goToNextPage);
+        document.getElementById('prevBtn').addEventListener('click', goToPrevPage);
+
+        // Initial load
+        processCardData(pageNumber);
+    </script>
+{% endblock %}

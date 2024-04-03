@@ -11,14 +11,20 @@
         <link href="https://cdn.jsdelivr.net/npm/daisyui@4.7.2/dist/full.min.css" rel="stylesheet" type="text/css" />
         <script src="https://cdn.tailwindcss.com"></script>
         <link rel='stylesheet' type="text/css" href="{% static 'styles/main.css' %}">
-
-    </head>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+        <title>{% block title %}Document{% endblock %}</title>
+        <link rel="stylesheet" href="{% static 'styles.css' %}">
+        <!--Using this for NavBar Icons-->
+        <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+        <!--This is for the card style-->
+        <link rel='stylesheet' type="text/css" href="{% static 'styles/cardstyle.css' %}">
+</head>
 
     <body>
         {% include 'navbar.html' %}
  
-        {% block content %}
+        {% block layout %}
 
-        {% endblock content %}
+        {% endblock layout %}
     </body>
 </html>

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+{% extends 'main.html' %}
+{% load static %}
+
+{% block layout %}
+<!--Used ChatGPT to help with flipping and correctly wrap things-->
+<div class="h-screen flex flex-col items-start p-4">
+    <!-- Add a Deck -->
+    <div class="card w-12 bg-base-100 border border-base-300 mb-2 mr-2">
+        <div class="flex justify-center items-center">
+            <button onclick="loadCard()" class="text-white font-bold py-2 px-2 rounded focus:outline-none">
+                <i class="fas fa-plus text-gray-600 text-2xl"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Delete a Deck -->
+    <div class="card w-12 bg-base-100 border border-base-300 mb-2 mr-2">
+        <div class="flex justify-center items-center">
+            <button onclick="deleteCard()" class="text-white font-bold py-2 px-2 rounded focus:outline-none">
+                <i class="fas fa-trash-alt text-gray-600 text-2xl"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Card container -->
+    <div id="cardContainer" class="flex flex-wrap w-full overflow-y-auto">
+      <!-- Cards that are added go right next to this one, keeping in mind there is a wrap -->
+    </div>
+</div>
+
+<script src="{% static 'js/cards.js' %}"></script>
+{% endblock %}

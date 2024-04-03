@@ -1,0 +1,48 @@
+{% extends "account/base_entrance.html" %}
+{% load i18n %}
+{% load allauth account %}
+{% block head_title %}
+    {% trans "Sign In" %}
+{% endblock head_title %}
+{% block content %}
+    <h1 class="text-xl text-center underline">Sign In</h1>
+    <form method="post" action="/accounts/login/" class="rounded px-8 pt-6 pb-8 mb-4">
+    {% csrf_token %}
+        <div class="mb-4">
+            <label class="block text-sm font-bold mb-2" for="id_login">Email/Username</label>
+            <input type="username_email" name="login" placeholder="Email/Username" autocomplete="Email/Username" maxlength="320" required id="id_login" class="shadow appearance-none border rounded w-full py-2 px-3 
+            leading-tight focus:outline-none focus:shadow-outline">
+        </div>
+        <div class="mb-6">
+            <label class="block text-sm font-bold mb-2" for="id_password">
+            Password
+            </label>
+            <input type="password" name="password" placeholder="Password" autocomplete="current-password" required aria-describedby="id_password_helptext" id="id_password"
+            class="shadow appearance-none border rounded w-full py-2 px-3 mb-3 leading-tight focus:outline-none focus:shadow-outline">
+            <button type="button" onclick="togglePasswordVisibility('id_password', 'toggleButton')" id="toggleButton" class="toggle-password text-sm text-blue-500 hover:text-blue-800">Show Password</button>
+        </div>
+        <div class="flex items-center justify-between">
+            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+            Sign In
+            </button>
+            <a class="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800" href="/accounts/signup/">
+            Sign up
+            </a>
+        </div>
+    </form>
+
+<script>
+    function togglePasswordVisibility(passwordFieldId, toggleButtonId) {
+        var passwordField = document.getElementById(passwordFieldId);
+        var toggleButton = document.getElementById(toggleButtonId);
+        if (passwordField.type === "password") {
+            passwordField.type = "text";
+            toggleButton.textContent = "Hide Password";
+        } else {
+            passwordField.type = "password";
+            toggleButton.textContent = "Show Password";
+        }
+    }
+</script>
+
+{% endblock content %}

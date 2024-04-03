@@ -1,19 +1,3 @@
-"""
-URL configuration for TCG_Binder project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/5.0/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
 from django.contrib import admin
 from django.urls import include, path
 from core import views
@@ -22,5 +6,10 @@ urlpatterns = [
     path('', views.home, name="home"),
     path('admin/', admin.site.urls),
     path('accounts/', include('allauth.urls')),
-    path('accounts/profile/' , views.profile, name="profile" )
+    path('accounts/profile/', views.profile, name="profile"),
+    path('decks/', views.decks, name="decks"),
+    path('addcard/', views.addcard, name="addcard"),
+    path('library/', views.library, name="library"),
+    path('randomcardgen/', views.randomcardgen, name="randomcardgen"),
+    path('update_page_number/', views.update_page_number, name="update_page_number"),  # Add this URL pattern
 ]
