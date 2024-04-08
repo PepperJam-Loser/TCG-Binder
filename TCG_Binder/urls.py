@@ -8,6 +8,7 @@ urlpatterns = [
     path('accounts/', include('allauth.urls')),
     path('accounts/profile/', views.profile, name="profile"),
     path('decks/', views.decks, name="decks"),
+    path('delete_deck/<int:deck_id>/', views.delete_deck, name='delete_deck'),
     path('addcard/', views.addcard, name="addcard"),
     path('library/', views.library, name="library"),
     path('randomcardgen/', views.randomcardgen, name="randomcardgen"),
