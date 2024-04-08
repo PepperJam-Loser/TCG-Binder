@@ -5,17 +5,70 @@
 {% load static %}
 
 {% block layout %}
-<div class="h-screen flex items-center justify-center">
-    <div class="flip-card" onclick="this.classList.toggle('clicked')">
-        <div class="flip-card-inner">
-            <div class="flip-card-front" style="background-image: url('https://www.hipstersofthecoast.com/wp-content/uploads/2023/06/en_8e6a0736e8.png'); background-size: contain; background-position: center; height: 100%;">
-            </div>
-            <div class="flip-card-back" style="background-image: url('https://i.imgur.com/LdOBU1I.jpeg'); background-size: contain; background-position: center; height: 100%; opacity: 0.5;">
-                <div style="background-color: rgba(0, 0, 0, 0.5);">
-                    <p class="text-white">Card Details:</p>
+<div class="container mx-auto pt-4">
+    <!-- Progress Bar -->
+    <div class="progress">
+        <div id="progress-bar" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+    </div>
+    <div id="progress-text" class="progress-text"></div>
+
+    <div class="h-screen flex items-center justify-center">
+        <div class="flip-card" onclick="this.classList.toggle('clicked')">
+            <div class="flip-card-inner">
+                <div class="flip-card-front" style="background-image: url('https://www.hipstersofthecoast.com/wp-content/uploads/2023/06/en_8e6a0736e8.png'); background-size: contain; background-position: center; height: 100%;">
+                </div>
+                <div class="flip-card-back" style="background-image: url('https://i.imgur.com/LdOBU1I.jpeg'); background-size: contain; background-position: center; height: 100%; opacity: 0.5;">
+                    <div style="background-color: rgba(0, 0, 0, 0.5);">
+                        <p class="text-white">Card Details:</p>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-{% endblock %}
+
+    <!-- CSS for Progress Bar -->
+    <style>
+        .progress {
+            width: 50%; /* Adjust width as needed */
+            background-color: #f0f0f0;
+            border-radius: 20px;
+            margin: 20px auto;
+            position: relative;
+            margin-top: 5px;
+        }
+
+        .progress-bar {
+            height: 20px; /* Adjust height as needed */
+            background-color: #4caf50; /* Green color for progress */
+            border-radius: 0;
+            width: 0; /* Initial width set to 0 */
+        }
+
+        .progress-text {
+            text-align: center;
+            margin-top: 10px; /* Adjust spacing between progress bar and text */
+            color: black;
+        }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Dummy values for demonstration, replace them with actual values
+            var ownedCards = 1; // Number of cards owned
+            var totalCards = 27000; // Total number of cards
+
+            // Calculate progress percentage
+            var progressPercentage = (ownedCards / totalCards) * 100;
+
+            // Set the progress bar width based on the calculated percentage
+            var progressBar = document.getElementById('progress-bar');
+            progressBar.style.width = progressPercentage + '%';
+
+            // Update progress text
+            var progressText = document.getElementById('progress-text');
+            progressText.innerHTML = ownedCards + '/' + totalCards + ' (' + progressPercentage.toFixed(2) + '%)';
+        });
+    </script>
+
+    {% endblock %}
