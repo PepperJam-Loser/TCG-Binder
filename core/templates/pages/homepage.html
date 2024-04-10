@@ -1,36 +1,27 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TGC Binder</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Eagle+Lake&display=swap');
+{% extends 'main.html' %}
+{% load static %}
+{% block layout %}
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Eagle+Lake&display=swap');
 
-        /* Style for TCG Binder text */
-        .tcg-binder-text {
-            font-family: 'Eagle Lake', cursive;
-            font-size: 5rem; /* Adjust the size as needed */
-            color: #ffffff; /* Adjust the color as needed */
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5); /* Optional: Add text shadow */
-        }
-    </style>
-
-</head>
-<body>
-    {% extends 'main.html' %}
-    {% load static %}
-    {% block layout %}
-    <div class="hero min-h-screen" style="background-image: url('{% static 'images/bkg_magic.jpg' %}'); background-repeat: no-repeat; background-position: center; background-attachment: fixed; background-size: cover;">
-      <div class="hero-overlay bg-opacity-60"></div>
-      <div class="hero-content text-center text-neutral-content">
-        <div class="max-w-md">
-          <!-- Add class to h1 tag for styling -->
-          <h1 class="mb-5 text-7xl font-bold tcg-binder-text">TCG Binder</h1>
-          <p class="mb-5 text-xl" style="color: yellow;">Welcome to TCG Binder, your ultimate digital companion for managing your trading card game collection with ease and precision. Whether you're a seasoned collector, a competitive player, or just starting out in the world of trading card games, TCG Binder offers the tools and features you need to organize, track, and showcase your collection like never before.</p>
-        </div>
-      </div>
+  /* Style for TCG Binder text */
+  .tcg-binder-text {
+      font-family: 'Eagle Lake', cursive;
+      font-size: 5rem; 
+      color: #ffffff; 
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.5); 
+  }
+</style>
+  <div class="min-h-screen bg-fixed bg-center bg-no-repeat bg-cover" style="background-image: url('/static/images/bkg_magic.jpg');">
+  <div class="bg-black bg-opacity-60 min-h-screen flex justify-center items-center">
+    <div class="text-center p-5">
+  <div class="hero-content text-center text-neutral-content">
+    <div class="max-w-md">
+      <!-- Add class to h1 tag for styling -->
+      <h1 class="mb-5 text-7xl font-bold tcg-binder-text">TCG Binder</h1>
+      <p class="mb-5 text-xl" style="color: yellow;">Welcome to TCG Binder, your ultimate digital companion for managing your trading card game collection with ease and precision. Whether you're a seasoned collector, a competitive player, or just starting out in the world of trading card games, TCG Binder offers the tools and features you need to organize, track, and showcase your collection like never before.</p>
     </div>
-    {% endblock layout %}
-</body>
-</html>
+  </div>
+</div>
+{% endblock %}
