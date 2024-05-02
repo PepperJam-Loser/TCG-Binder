@@ -16,11 +16,26 @@ class Deck(models.Model):
     cards = models.ManyToManyField('Card')
 
     def __str__(self):
-        return f"{self.deckName} - Deck for {self.user.username}"
+        return f"{self.deckName} by {self.user.username}"
 
 class Card(models.Model):
-    cardName= models.CharField(max_length=50)
+    id = models.AutoField(primary_key=True)
+    uuid = models.CharField(max_length=100, default='')
+    cardName = models.CharField(max_length=100, default='')
+    uri = models.CharField(max_length=256, default='')
+    cmc = models.IntegerField(default=0)
+    oracle_text = models.CharField(max_length=256, default='')
+    img_small = models.CharField(max_length=256, default='')
+    img_png = models.CharField(max_length=256, default='')
 
     def __str__(self):
-        return f"Card {self.cardName}"
+        return f"{self.cardName}"
+
+class Collection(models.Model):
+    user = models.OneToOneField('auth.User', on_delete=models.CASCADE)
+    cards = models.ManyToManyField('Card')
+
+    def __str__(self):
+        return f"{self.user.username}'s Collection"
+
 
