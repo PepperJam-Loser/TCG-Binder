@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+{% extends 'main.html' %}
+{% load static %}
+
+{% block layout %}
+
+<style>
+    .card-info {
+        font-size: 2em;
+    }
+    .container {
+        display: flex;
+        align-items: center;
+    }
+
+    .container img {
+        width: 500px;
+        height: auto;
+        margin-right: 20px;
+    }
+</style>
+
+<body>
+    <div class="container">
+        <img src="{{ card.img_png }}" alt="{{ card.cardName }}">
+        <div class="card-info">
+            <p><strong>Name:</strong> {{ card.cardName }}</p>
+            <p><strong>ID:</strong> {{ card.id }}</p>
+            <p><strong>CMC:</strong> {{ card.cmc }}</p>
+            <p><strong>Oracle Text:</strong> {{ card.oracle_text }}</p>
+            <!-- Add more card details as needed -->
+        </div>
+    </div>
+    <button class="btn" onclick="goBack()">Back</button>
+</body>
+
+<script>
+    function goBack() {
+        window.history.back();
+    }
+</script>
+
+
+{% endblock %}

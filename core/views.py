@@ -4,42 +4,39 @@ from django.http import JsonResponse
 from django.db.models import Prefetch
 from .models import PageNumber, Deck, Card  # Import the PageNumber model
 from .forms import DeckForm, CardForm
+from django.urls import reverse_lazy
+from django.views.generic.base import RedirectView
+
+from django.contrib import messages
+from django.db.models import Q
 
 # Create your views here.
 
 def profile(request):
     return render(request, 'users/profile.html')
 
+@login_required
+def update_wins_count(request, deck_id):
+    if request.method == 'POST' and request.is_ajax():
+        deck = Deck.objects.get(id=deck_id)
+        if 'increment' in request.POST:
+            deck.wins += 1
+        elif 'decrement' in request.POST:
+            deck.wins -= 1
+        deck.save()
+        return JsonResponse({'wins': deck.wins})
+    else:
+        return JsonResponse({'error': 'Invalid request'})
+
+
+
+
 def home(request):
     return render(request, 'pages/homepage.html')
 
-@login_required
-def decks(request):
-    if request.method == 'POST':
-        deckFormIN = DeckForm(request.POST)
-        cardFormIN = CardForm(request.POST)
-        if deckFormIN.is_valid():
-            deck_name = deckFormIN.cleaned_data['deck_name']
-            user = request.user
-            deck = Deck.objects.create(user=user, deckName=deck_name)
-            return redirect('decks')  # Redirect to the same page after adding the deck
-        if cardFormIN.is_valid():
-            card_name = cardFormIN.cleaned_data['card_name']
-            deck_nameCard = cardFormIN.cleaned_data['deck_nameCard']
-            # Check if the card already exists in the database
-            existing_card = Card.objects.filter(cardName=card_name).first()
-            existing_deck = Deck.objects.get(deckName=deck_nameCard)
-            if existing_card:
-                pass
-            else:
-                existing_card = Card.objects.create(cardName=card_name)
-            existing_deck.cards.add(existing_card)
-            return redirect('decks')  # Redirect to the same page after adding the deck
-    else:
-        deckFormIN = DeckForm()
-        cardFormIN = CardForm()
-    decks = Deck.objects.filter(user=request.user).prefetch_related('cards')
-    return render(request, 'pages/decks.html', {'form': deckFormIN, 'form':cardFormIN, 'decks': decks})
+def card_details(request, card_id):
+    card = get_object_or_404(Card, id=card_id)
+    return render(request, 'pages/card_details.html', {'card': card})
 
 @login_required
 def delete_deck(request, deck_id):
@@ -48,7 +45,62 @@ def delete_deck(request, deck_id):
         deck.delete()
     return redirect('decks')
 
+
 @login_required
+def search_cards(request):
+    if request.method == 'GET':
+        query = request.GET.get('q')
+        if query:
+            # Search for cards based on card name or oracle text containing the query
+            cards = Card.objects.filter(Q(cardName__icontains=query) | Q(oracle_text__icontains=query))
+            card_data = [{'cardName': card.cardName} for card in cards]
+            return JsonResponse({'cards': card_data})
+        else:
+            # If no query provided, return an empty response
+            return JsonResponse({'cards': []})
+
+
+
+@login_required
+def decks(request):
+    if request.method == 'POST':
+        form = DeckForm(request.POST)
+        if form.is_valid():
+            deck_name = form.cleaned_data['deck_name']
+            is_public = request.POST.get('is_public') == 'on'
+            # Create the new deck with the provided data
+            Deck.objects.create(user=request.user, deckName=deck_name, is_public=is_public)
+            # Redirect to the decks page after creating the deck
+            return redirect('decks')
+    else:
+        form = DeckForm()
+
+    # Fetch all decks belonging to the logged-in user
+    decks = Deck.objects.filter(user=request.user).prefetch_related('cards')
+
+    # Handle search functionality
+    if 'q' in request.GET:
+        query = request.GET['q']
+        # Filter cards based on the search query
+        search_results = Card.objects.filter(cardName__icontains=query)
+        # Pass the search results and query to the template
+        return render(request, 'pages/decks.html', {'decks': decks, 'search_results': search_results, 'query': query, 'form': form})
+
+    # If no search query, render the template with just the decks
+    return render(request, 'pages/decks.html', {'decks': decks, 'form': form})
+
+
+
+@login_required
+def add_card_to_deck(request, card_id):
+    if request.method == 'POST':
+        card = get_object_or_404(Card, id=card_id)
+        deck_id = request.POST.get('deck_id')
+        deck = get_object_or_404(Deck, id=deck_id)
+        deck.cards.add(card)
+    return redirect('decks')
+
+
 def addcard(request):
     return render(request, 'pages/addcard.html')
 
