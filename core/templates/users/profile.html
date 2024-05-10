@@ -5,25 +5,72 @@
 {% load static %}
 
 <!--Top half image: https://i.pinimg.com/736x/12/8d/e8/128de8ce51ee0c498a4dfa67610f5843.jpg-->
-<!--Whole image: https://www.hipstersofthecoast.com/wp-content/uploads/2023/06/en_8e6a0736e8.png-->>
+<!--Whole image: https://www.hipstersofthecoast.com/wp-content/uploads/2023/06/en_8e6a0736e8.png-->
 
 {% block layout %}
 
-<div class="h-screen flex items-center justify-center">
-    <div class="flip-card" onclick="this.classList.toggle('clicked')">
-        <div class="flip-card-inner">
-            <div class="flip-card-front" style="background-image: url('https://www.wargamer.com/wp-content/sites/wargamer/2023/09/pokemon-trading-card-gamecharizard-card-crashing.jpg'); background-size: cover; background-position: center; height: 50%;">
+<!-- Public Decks Section -->
+<div class="public-decks-section">
+    <h2><strong>Public Decks</strong></h2>
+    <div class="public-decks-container">
+        {% for deck in request.user.deck_set.all %}
+        {% if deck.is_public %}
+        <div class="public-deck">
+            <p>{{ deck.deckName }}</p>
+            <div class="flex flex-row">
+                {% for card in deck.cards.all|slice:":3" %}
+                <img src="{{ card.img_small }}" alt="{{ card.cardName }}">
+                {% endfor %}
             </div>
-            <div style="position: absolute; bottom: 20%; left: 0; width: 100%; text-align: center;">
-                    <p class="title break-words text-slate-950">{{request.user.username}}'s Profile</p>
-                    <p class="text-slate-950">More info</p>
-                </div>
-            <div class="flip-card-back">
-                <p>Email:</p>
-                <p class="break-all">{{request.user.email}}</p>
-                <p>Stats: </p>
+        </div>
+        {% endif %}
+        {% endfor %}
+    </div>
+</div>
+
+<div class="h-screen flex items-center justify-center">
+    <!-- Banner at the top -->
+    <div class="bg-gray-800 text-white py-4 px-6 w-full fixed bottom-0">
+        <div class="container mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-xl font-bold">{{ request.user.username }}</h1>
+                <p>{{ request.user.email }}</p>
+            </div>
+            <div>
+                <a href="{% url 'decks' %}" class="btn">View Decks</a>
             </div>
         </div>
     </div>
 </div>
-{% endblock %}
+
+
+
+
+<style>
+    .public-decks-section {
+        margin-top: 50px;
+        margin-left: 20px;
+    }
+
+    .public-decks-container {
+        display: flex; /* Use flexbox */
+        flex-direction: row; /* Arrange decks side by side */
+        flex-wrap: wrap; /* Allow decks to wrap to the next line */
+    }
+
+    .public-deck {
+        flex: 0 0 auto; /* Ensure decks don't grow or shrink */
+        width: calc(33.33% - 20px); /* Calculate width for three decks per row */
+        margin-right: 20px; /* Add some margin between decks */
+        margin-bottom: 20px; /* Add some margin below each deck */
+    }
+
+    .preview-cards img {
+        width: 150px; /* Adjust the width of the cards as needed */
+        height: auto; /* Maintain aspect ratio */
+        margin-right: 10px; /* Add some margin between cards */
+    }
+</style>
+
+
+    {% endblock %}

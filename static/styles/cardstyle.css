@@ -65,3 +65,23 @@
         .flip-card:hover {
         outline: 2px solid white;
         }
+
+        .card {
+            position: relative;
+        }
+
+        .card-details {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.8); /* semi-transparent background */
+            color: white;
+            padding: 10px;
+        }
+
+        .card:hover .card-details {
+            display: block; /* Show card details when card is hovered */
+        }
