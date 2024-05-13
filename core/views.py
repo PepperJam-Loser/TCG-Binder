@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.db.models import Prefetch
-from .models import PageNumber, Deck, Card  # Import the PageNumber model
+from .models import PageNumber, Deck, Card, Collection  # Import the PageNumber model
 from .forms import DeckForm, CardForm
 from django.urls import reverse_lazy
 from django.views.generic.base import RedirectView
@@ -108,11 +108,28 @@ def randomcardgen(request):
     return render(request, 'pages/randomcardgen.html')
 
 def library(request):
-    current_page = 1  # Default to page 1 if no PageNumber object exists
-    page_number_object = PageNumber.objects.first()
-    if page_number_object:
-        current_page = page_number_object.page
-    return render(request, 'pages/library.html', {'current_page': current_page})
+    if request.method == 'POST':
+        return redirect('library')
+
+    # Handle search functionality
+    if 'q' in request.GET:
+        query = request.GET['q']
+        # Filter cards based on the search query
+        search_results = Card.objects.filter(cardName__icontains=query)
+        # Pass the search results and query to the template
+        return render(request, 'pages/library.html', { 'search_results': search_results, 'query': query})
+
+    # If no search query, render the template with just the decks
+    return render(request, 'pages/library.html')
+
+def add_card_to_collection(request, card_id):
+    if request.method == 'POST':
+        card = get_object_or_404(Card, id=card_id)
+        
+        collection, created = Collection.objects.get_or_create(user=request.user)
+        
+        collection.cards.add(card)
+    return redirect('library')
 
 def update_page_number(request):
     if request.method == 'POST':

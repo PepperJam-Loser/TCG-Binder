@@ -6,205 +6,83 @@
 {% extends 'main.html' %}
 {% load static %}
 {% block layout %}
-<!--Move this style. This style is for the card object-->
 
+<div class="flex flex-col items-center mx-10 md:mx-20">
+    <h1 class="prose-2xl mb-4">Library</h1>
 
-<label class="input input-bordered flex items-center gap-2" hx-get="/search/" hx-trigger="click">
-    <input id="searchInput" type="text" class="grow" placeholder="Search" hx-post="search_term = this.value" hx-target="#searchResults" />
-    <button id="searchButton" class="btn btn-primary" type="submit">Search</button>
-</label>
+    <!-- Search Bar -->
+    <form method="GET" action="{% url 'library' %}" class="mb-4">
+        <input type="text" name="q" placeholder="Search for cards" class="input input-bordered w-full max-w-md" />
+        <button type="submit" class="btn">Search</button>
+    </form>
+
+    <!-- Display Search Results -->
+    {% if search_results %}
+    <div class="grid grid-cols-6 gap-4">
+        {% for card in search_results %}
+        <div class="card">
+            <div class="card-img">
+                <img src="{{ card.img_png }}" alt="{{ card.cardName }}" class="scaled_image">
+            </div>
+            <div class="card-details">
+                <!-- Form to add the card to collection -->
+                <form method="POST" action="{% url 'add_card_to_collection' card.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="card_id" value="{{card.id}}">
+                    <button type="submit" class="btn">Add to Collection</button>
+                </form>
+                <!-- Add more card details as needed -->
+                <a href="{% url 'card_details' card.id %}" class="btn btn-primary">Show Details</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
 
 <div class="flex flex-col px-40">
     <div id="output"></div>
 </div>
 
-<div class="pagination">
-    <div class="page-info" id="pageInfo"></div>
-    <button id="prevBtn">Back</button>
-    <button id="nextBtn">Next</button>
-</div>
-
-<!--Move this script. This just loads a pages with cards from fetching with api search-->
 <script>
-    let searchTerm;
-    async function searchCards() {
-        pageNumber = 1; // Reset page number
-        searchTerm = document.getElementById('searchInput').value.trim();
-        //document.getElementById('nextBtn').addEventListener('click', goToNextPage);
-        if (searchTerm !== '') {
-            await processCardData(pageNumber, searchTerm);
-        } else {
-            // If search term is empty, load initial data.
-            searchTerm = '%28game%3Apaper%29+unique%3Aprints';//attempt at defaulting to original search(not working)
-            processCardData(pageNumber, searchTerm);
-        }
-    }
-    document.getElementById('searchButton').addEventListener('click', searchCards);
-    /*Search while typing, turn off for now because we are pulling for api and dont want to overload it
-    document.getElementById('searchInput').addEventListener('input', function() {
-        clearTimeout(this.delayTimer);
-        this.delayTimer = setTimeout(() => {
-            searchCards();
-        }, 300);
-    });
-    */
-    // Modify fetchJSONFromAPI function to include search query parameter
-    async function fetchJSONFromAPI(page, searchQuery) {
-        const apiUrl = `https://api.scryfall.com/cards/search?format=json&include_extras=false&include_multilingual=false&include_variations=false&order=name&page=${page}&q=${searchQuery}&unique=print`;
-        try {
-            const response = await fetch(apiUrl);
-            const jsonData = await response.json();
-            return jsonData;
-        } catch (error) {
-            console.error('Error fetching JSON data:', error);
-            return null;
-        }
-    }
-
-    // Update processCardData function to handle search results
-    async function processCardData(page, searchQuery) {
-        const jsonData = await fetchJSONFromAPI(page, searchQuery);
-        if (jsonData) {
-            const outputDiv = document.getElementById('output');
-            outputDiv.innerHTML = ''; // Clear previous cards
-
-            jsonData.data.forEach((card, index) => {
-                const cardContainer = document.createElement('div');
-                cardContainer.classList.add('flip-card');
-
-                const cardInner = document.createElement('div');
-                cardInner.classList.add('flip-card-inner');
-
-                const frontSide = document.createElement('div');
-                frontSide.classList.add('flip-card-front');
-
-                const frontImage = document.createElement('img');
-                frontImage.src = findFrontImage(card);
-                frontImage.alt = card.name || 'Unknown Name';
-
-                frontSide.appendChild(frontImage);
-                cardInner.appendChild(frontSide);
-
-                const backSide = document.createElement('div');
-                backSide.classList.add('flip-card-back');
-
-                const backImage = document.createElement('img');
-                backImage.src = findBackImage(card);
-                backImage.alt = card.name || 'Unknown Name';
-
-                backSide.appendChild(backImage);
-                cardInner.appendChild(backSide);
-
-                const cardDetails = createCardDetails(card.name, card.set_name, card.rarity, card.artist, card.id);
-                frontSide.appendChild(cardDetails.cloneNode(true));
-                backSide.appendChild(cardDetails);
-
-                cardContainer.appendChild(cardInner);
-                outputDiv.appendChild(cardContainer);
-            });
-
-            // Toggle "clicked" class on card flip
-            outputDiv.querySelectorAll('.flip-card').forEach(card => {
-                card.addEventListener('click', function () {
-                    this.classList.toggle('clicked');
+    // AJAX request for searching cards
+    document.getElementById("search-form").addEventListener("submit", function (event) {
+        event.preventDefault(); // Prevent default form submission
+        const query = document.getElementById("search-input").value;
+        fetch(`/search/?q=${query}`)
+            .then(response => response.json())
+            .then(data => {
+                const searchResults = document.getElementById("search-results");
+                searchResults.innerHTML = ""; // Clear previous search results
+                data.cards.forEach(card => {
+                    const cardElement = document.createElement("div");
+                    cardElement.textContent = card.cardName;
+                    // Add more card details as needed
+                    searchResults.appendChild(cardElement);
                 });
+            })
+            .catch(error => {
+                console.error("Error fetching search results:", error);
             });
-
-            // Update page info
-            updatePageInfo(page, jsonData.data.length);
-        }
-    }
-
-    //card_faces fields and index is very important
-    function findFrontImage(card) {
-        if (card.card_faces && card.card_faces[0] && card.card_faces[0].image_uris) {
-            return card.card_faces[0].image_uris.normal || 'https://i.imgur.com/LdOBU1I.jpeg';
-        } else if (card.image_uris) {
-            return card.image_uris.normal || 'https://i.imgur.com/LdOBU1I.jpeg';
-        } else {
-            return 'https://i.imgur.com/LdOBU1I.jpeg';
-        }
-    }
-
-    //Have a default back card image
-    function findBackImage(card) {
-        if (card.card_faces && card.card_faces[1] && card.card_faces[1].image_uris) {
-            return card.card_faces[1].image_uris.normal || 'https://i.imgur.com/LdOBU1I.jpeg';
-        } else {
-            return 'https://i.imgur.com/LdOBU1I.jpeg';
-        }
-    }
-
-    function createCardDetails(name, setName, rarity, artist, id) {
-        const cardDetailsContainer = document.createElement('div');
-        cardDetailsContainer.classList.add('flip-card-details');
-
-        const nameLabel = document.createElement('span');
-        nameLabel.textContent = 'Name: ';
-        nameLabel.style.fontWeight = 'bold';
-        cardDetailsContainer.appendChild(nameLabel);
-
-        const nameText = document.createElement('span');
-        nameText.textContent = name || 'Unknown Name';
-        cardDetailsContainer.appendChild(nameText);
-
-        const setNameText = document.createElement('p');
-        setNameText.textContent = `Set: ${setName || 'Unknown Set'}`;
-        cardDetailsContainer.appendChild(setNameText);
-
-        const rarityText = document.createElement('p');
-        rarityText.textContent = `Rarity: ${rarity || 'Unknown Rarity'}`;
-        cardDetailsContainer.appendChild(rarityText);
-
-        const artistText = document.createElement('p');
-        artistText.textContent = `Artist: ${artist || 'Unknown Artist'}`;
-        cardDetailsContainer.appendChild(artistText);
-
-        const idText = document.createElement('p');
-        idText.textContent = `ID: ${id || 'Unknown ID'}`;
-        cardDetailsContainer.appendChild(idText);
-
-        return cardDetailsContainer;
-    }
-
-    function updatePageInfo(page, cardCount) {
-        const pageInfo = document.getElementById('pageInfo');
-        const startIndex = (page - 1) * 175 + 1;
-        const endIndex = startIndex + cardCount - 1;
-        pageInfo.textContent = `Cards: ${startIndex} - ${endIndex}`;
-    }
-
-    async function goToNextPage() {
-        pageNumber++;
-        await processCardData(pageNumber, searchTerm);
-    }
-
-    async function goToPrevPage() {
-        if (pageNumber != 1) {
-            pageNumber--;
-            await processCardData(pageNumber, searchTerm);
-        }
-    }
-
-    // Load next or previous page
-    document.getElementById('nextBtn').addEventListener('click', goToNextPage);
-    document.getElementById('prevBtn').addEventListener('click', goToPrevPage);
-
-    // Initial load
-    processCardData(pageNumber);
+    });
 </script>
+
 
 <style>
     .flip-card {
-        width: 200px;
-        height: 300px;
+        width: 300px;
+        height: 400px;
         font-family: sans-serif;
         border-radius: 1rem;
         overflow-y: scroll;
         border: 1px solid transparent;
-        margin: 20px;
-        display: inline-block;
-        position: relative;
+    }
+
+    .title {
+        font-size: 1.5em;
+        font-weight: 900;
+        text-align: center;
+        margin: 0;
     }
 
     .flip-card-inner {
@@ -222,7 +100,7 @@
     }
 
     .flip-card-front, .flip-card-back {
-        box-shadow: 0 8px 14px 0 rgba(0, 0, 0, 0.2);
+        box-shadow: 0 8px 14px 0 rgba(0,0,0,0.2);
         position: absolute;
         display: flex;
         flex-direction: column;
@@ -233,6 +111,7 @@
         backface-visibility: hidden;
         border: 1px solid rgb(0, 0, 0);
         border-radius: 1rem;
+        background-color: grey;
     }
 
     .flip-card-front {
@@ -242,13 +121,7 @@
     .flip-card-back {
         color: rgb(0, 0, 0);
         transform: rotateY(180deg);
-        background-size: cover;
-        background-position: center;
-        overflow: hidden; /* Ensure text doesn't overflow */
-        opacity: 0; /* Initially hide card details */
-        transition: opacity 0.3s; /* Add transition effect */
     }
-
 
     .flip-card.clicked .flip-card-front {
         visibility: hidden;
@@ -256,70 +129,36 @@
 
     .flip-card.clicked .flip-card-back {
         visibility: visible;
-        opacity: 1; /* Show back card image when flipped */
     }
 
-    .flip-card:hover .flip-card-back {
-        opacity: 1; /* Always show back card image on hover */
-    }
-
-    .flip-card:hover .flip-card-details {
-        opacity: 1; /* Show card details on hover */
-    }
 
     .flip-card:hover {
         outline: 2px solid white;
     }
 
-    .flip-card img {
-        display: block;
-        border-radius: 10px;
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
+    .card {
+        position: relative;
     }
 
-    .flip-card-details {
+    .card-details {
+        display: none;
         position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        text-align: left;
-        opacity: 0; /* Initially hide card details */
-        z-index: 1;
-        color: white; /* Text color */
-        width: 90%;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.8); /* semi-transparent background */
+        color: white;
         padding: 10px;
-        background-color: rgba(0, 0, 0, 0.723); /*This is to outline text */
-        border-radius: 10px;
-        backdrop-filter: blur(5px); /* Blur */
-        transition: opacity 0.3s;
     }
 
-        .flip-card-details p {
-            margin: 5px 0; /* Add margin for spacing */
-        }
-
-    .pagination {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
+    .card:hover .card-details {
+        display: block; /* Show card details when card is hovered */
     }
 
-        .pagination button {
-            margin-left: 10px;
-            padding: 8px 16px;
-            font-size: 16px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-    .page-info {
-        margin-left: 10px;
-        padding: 8px 16px;
-        top: 80px;
-        font-size: 16px;
+    .scaled_image {
+        width: 100%;
+        height: auto;
     }
 </style>
 {% endblock %}
